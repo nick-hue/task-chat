@@ -12,10 +12,9 @@ mark tasks done, or delete them. Single user, single small database — no produ
 **Current state:** the application is built out phase by phase. **The authoritative source of
 where things stand is `docs/roadmap/progress/` — read the highest-numbered `PROGRESS_<N>.md` at the
 start of every session to learn the active phase**, rather than trusting any state described here
-(this line drifts). As of writing, the repo has only a bare `uv init` + `git init` scaffold
-(`pyproject.toml`, `.python-version`, `src/main.py` with the default "Hello" stub, empty
-`README.md`) and no commits yet — no bot/parsing/db code exists. Phase 1 (bot registration & API
-basics) is active and not yet started; the scaffold is just repo prep, not a Phase 2 jump-ahead.
+(this line drifts). As of writing, Phases 1 through 3 are done: the bot is registered, `src/bot.py`
+runs a live echo bot over long polling, and `docs/SCHEMA.md` holds the agreed three-table schema
+with its DDL. No `db.py` or `parser.py` yet. Phase 4 (wire the database to the bot) is active.
 
 ## How to work with me on this project
 
@@ -23,43 +22,21 @@ This is a **learning project**, same style as this user's other learning repos (
 goal is for the user to build the intuition themselves, not to ship fast. Optimize for
 understanding, not throughput.
 
-- **Guide, don't write.** When a task involves writing application code (`bot.py`, `parser.py`,
-  `db.py`, etc.), the **user writes it**. Your job is to explain the concepts, sketch the
-  approach, review what they wrote, point to the right docs/APIs, and offer small snippets *only*
-  when they're genuinely stuck or ask directly. Do not hand over finished implementations by
-  default.
-- **Always teach the "why."** Before introducing or using a tool/step (python-telegram-bot,
-  SQLite, systemd…), explain why it exists, what problem it solves, and the tradeoffs. A concept
-  the user understands is worth more than a file that works.
-- **Hold the phase order strictly.** Do not pre-build later-phase work or skip ahead — e.g. don't
-  wire up commands (Phase 6) before the database is wired to the bot (Phase 4), don't add access
-  control language before Phase 7 is reached. If the user asks to jump phases, pause and flag it —
-  the sequential progression *is* the curriculum. Proceed out of order only after they explicitly
-  confirm they want to.
-- **Keep tool-choice answers short.** ~2 lines per option plus a clear recommendation, not a long
-  tradeoff essay. Still teach the "why," just compressed.
-- **The "check my code" review loop.** While the user is mid-attempt (trying things, asking
-  questions), answer the specific question and nudge in the right direction — *don't* hand over
-  the full solution after one try. When they explicitly say **"check"** / "check my code", switch
-  modes: (1) give a **table of the mistakes** to correct, then (2) give the **specific corrected
-  lines/snippets**. They re-attempt and say **"check"** again; once it's clean, move on. The
-  snippets-on-review are an explicit exception to "guide, don't write" — only at the review step,
-  never before an attempt has been made.
-- **Lay out new-file work compactly.** When introducing a new file/task, present what the user has
-  to do as a table or bullet list (fields, decisions, steps) rather than long prose. Still teach
-  the "why," just compressed.
+**Run the `guided-build` skill for this repo.** Invoke it with the Skill tool at the start of every
+session. It holds the working loop this project runs on: guide-don't-write, teach the "why" before
+introducing a tool, the "check" review protocol, strict phase order, compact tool-choice answers,
+and the rules for the progress panels. It also pulls in `teach` for explanations and `unslop` for
+the prose. What follows is only the task-chat-specific part the skill can't know.
 
-**Maintain the live progress panels.** Progress is tracked with **one file per phase** under
-`docs/roadmap/progress/`, named `PROGRESS_<N>.md`. Each holds **only that phase's** checklist, and the
-user keeps the current one open in a live-preview pane. You own these files: at the start of each
-session, check which phase is active and open its `PROGRESS_<N>.md`; as the user completes tasks
-(after you verify them — read their code, don't just take their word) tick the corresponding
-boxes. Only when a phase is fully done do you create the next phase's file (`PROGRESS_<N+1>.md`)
-from that phase's roadmap checklist — never edit or overwrite a completed phase's file. Keep the
-active file in sync with the real state of the repo; never let it drift ahead of what's actually
-been done.
-
-When in doubt, default to explaining and letting the user do the hands-on work themselves.
+- **The user writes `bot.py`, `parser.py`, and `db.py`.** You explain, review, and track.
+- **Progress panels live at `docs/roadmap/progress/PROGRESS_<N>.md`,** one per phase, and the user
+  keeps the current one open in a live-preview pane. Read the highest-numbered one at the start of
+  every session to learn the active phase, and trust it over the "Current state" note above.
+- **Don't re-quiz the user on theory or reading checkpoints** (e.g. "read the API docs," "decide
+  polling vs. webhook"). Take their word and tick the box. They asked for this directly ("don't be
+  so strict about theory, I want to get stuff done"), and it's a standing request, not a one-off.
+- **Concrete phase-order traps:** don't wire up commands (Phase 6) before the database is wired to
+  the bot (Phase 4), and don't add access-control language before Phase 7 is reached.
 
 ## The roadmap is the spec
 
@@ -99,13 +76,11 @@ existing `src/` layout `uv init` already created: `src/main.py` (entrypoint), `s
 ## Tooling and commands
 
 Stack is decided (**Python**, **uv** for env/deps, **python-telegram-bot**, stdlib **sqlite3**).
-The repo currently has only the bare `uv init` scaffold — no bot/parsing/db code, no dependencies
-added, no commits yet:
+`python-telegram-bot` and `python-dotenv` are installed. No linter or test runner yet:
 
 - `uv sync` — install deps into `.venv` from `pyproject.toml`.
-- `uv run python src/main.py` — run the current stub entrypoint (prints "Hello from task-chat!").
-  This becomes `uv run python bot.py` (or similar) once Phase 2 writes the actual bot.
-- `uv add <pkg>` — add a runtime dependency (`python-telegram-bot` gets added in Phase 2).
+- `uv run src/bot.py` — start the bot. Blocks on `run_polling()`, Ctrl-C to stop.
+- `uv add <pkg>` — add a runtime dependency.
 
 Update this section as real commands (linting, tests, the actual bot entrypoint) get added —
 don't let it go stale.

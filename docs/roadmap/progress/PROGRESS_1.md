@@ -12,15 +12,17 @@ register a bot, and be able to explain the polling-vs-webhook tradeoff unprompte
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Register a bot with **@BotFather**, get a name/username | ⬜ To do |
-| 2 | Save the bot **token** somewhere safe (not in code/commits) | ⬜ To do |
-| 3 | Read the `Update`/`Message` object docs (`text`, `chat.id`, `from.id`) | ⬜ To do |
-| 4 | Read the `getUpdates` (polling) vs `setWebhook` (webhooks) docs | ⬜ To do |
-| 5 | Decide + justify: this project uses **polling** | ⬜ To do |
-| 6 | Send a test message, confirm it via a raw `getUpdates` `curl` call | ⬜ To do |
+| 1 | Register a bot with **@BotFather**, get a name/username | ✅ Done |
+| 2 | Save the bot **token** somewhere safe (not in code/commits) | ✅ Done |
+| 3 | Read the `Update`/`Message` object docs (`text`, `chat.id`, `from.id`) | ✅ Done |
+| 4 | Read the `getUpdates` (polling) vs `setWebhook` (webhooks) docs | ✅ Done |
+| 5 | Decide + justify: this project uses **polling** | ✅ Done |
+| 6 | Send a test message, confirm it via a raw `getUpdates` `curl` call | ✅ Done |
 
 **Done when:** working bot token in hand, polling vs. webhooks explained unprompted, and a raw
 update seen from your own test message.
+
+**Phase 1 complete.** See `PROGRESS_2.md` for the next phase.
 
 ---
 
