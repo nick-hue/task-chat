@@ -15,3 +15,4 @@ wheels/
 
 # Machine-local Claude Code settings
 .claude/settings.local.json
+.claude
