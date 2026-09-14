@@ -11,7 +11,7 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | `/list` with tags | ⬜ To do |
+| 1 | `/list` with tags | ✅ Done |
 | 2 | `/list @folder` and `/list #tag` | ⬜ To do |
 | 3 | `/done <id>` | ⬜ To do |
 | 4 | `/delete <id>` | ⬜ To do |

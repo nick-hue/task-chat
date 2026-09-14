@@ -76,7 +76,16 @@ def insert_task(
 
 def list_tasks(chat_id: int) -> list[sqlite3.Row]:
     conn = connect()
-    sql = "SELECT * FROM tasks WHERE chat_id = ? AND done = 0 ORDER BY id"
+    # get the tasks that are not done (for now)
+    sql = """
+        SELECT t.id, t.content, t.folder, group_concat(g.tag_name, ', ') AS tags
+        FROM tasks t
+        LEFT JOIN task_tags tt ON tt.task_id = t.id
+        LEFT JOIN tags g on g.tag_id = tt.tag_id
+        WHERE t.chat_id = ? AND t.done = 0
+        GROUP BY t.id;
+        """
+
     cur = conn.execute(sql, (chat_id,))
     rows = cur.fetchall()
     conn.close()
