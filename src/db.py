@@ -44,25 +44,40 @@ def init_db() -> None:
     conn.close()
 
 
-def insert_task(chat_id: int, content: str) -> int | None:
+def insert_task(
+    chat_id: int, content: str, folder: str = "inbox", tags: list[str] | None = None
+) -> int | None:
+    if tags is None:
+        tags = []
+
     conn = connect()
-    sql = "INSERT INTO tasks (chat_id, content) VALUES (?, ?)"
-    cur = conn.execute(sql, (chat_id, content))
-    conn.commit()
+    sql = "INSERT INTO tasks (chat_id, content, folder) VALUES (?, ?, ?)"
+    cur = conn.execute(sql, (chat_id, content, folder))
     task_id = cur.lastrowid
+
+    # for each tag the parser found add them to the row
+    for tag in tags:
+        # add tag to the tag table if it does not exist
+        conn.execute("INSERT OR IGNORE INTO tags (tag_name) VALUES (?)", (tag,))
+        # get the current tag row
+        tag_row = conn.execute(
+            "SELECT tag_id FROM tags WHERE tag_name = ?", (tag,)
+        ).fetchone()
+        # add it to the join table
+        conn.execute(
+            "INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)",
+            (task_id, tag_row["tag_id"]),
+        )
+
+    conn.commit()
     conn.close()
     return task_id
 
 
 def list_tasks(chat_id: int) -> list[sqlite3.Row]:
     conn = connect()
-
     sql = "SELECT * FROM tasks WHERE chat_id = ? AND done = 0 ORDER BY id"
-
     cur = conn.execute(sql, (chat_id,))
-
     rows = cur.fetchall()
-
     conn.close()
-
     return rows

@@ -12,9 +12,10 @@ mark tasks done, or delete them. Single user, single small database — no produ
 **Current state:** the application is built out phase by phase. **The authoritative source of
 where things stand is `docs/roadmap/progress/` — read the highest-numbered `PROGRESS_<N>.md` at the
 start of every session to learn the active phase**, rather than trusting any state described here
-(this line drifts). As of writing, Phases 1 through 3 are done: the bot is registered, `src/bot.py`
-runs a live echo bot over long polling, and `docs/SCHEMA.md` holds the agreed three-table schema
-with its DDL. No `db.py` or `parser.py` yet. Phase 4 (wire the database to the bot) is active.
+(this line drifts). As of writing, Phases 1 through 5 are done: `src/bot.py` polls Telegram and
+turns each message into a task row, `src/parser.py` pulls out `@folder` and `#tag`, `src/db.py`
+writes to all three tables in `docs/SCHEMA.md`, and `tests/test_parser.py` covers the parsing
+rules. Phase 6 (command set) is active.
 
 ## How to work with me on this project
 
@@ -69,17 +70,20 @@ Long polling, not webhooks — no public HTTPS endpoint required, which matters 
 the user's home server in Phase 9. See the master roadmap doc for the full rationale.
 
 Intended final layout (grows one phase at a time — see the roadmap for details), following the
-existing `src/` layout `uv init` already created: `src/main.py` (entrypoint), `src/bot.py`
+existing `src/` layout `uv init` already created: `src/bot.py`
 (handlers + polling loop), `src/parser.py` (pure text→task parsing), `src/db.py` (SQLite access),
 `.env` (bot token, allowed user id — gitignored), `tasks.db` (gitignored, created at runtime).
 
 ## Tooling and commands
 
 Stack is decided (**Python**, **uv** for env/deps, **python-telegram-bot**, stdlib **sqlite3**).
-`python-telegram-bot` and `python-dotenv` are installed. No linter or test runner yet:
+`python-telegram-bot` and `python-dotenv` are installed, plus `pytest` as a dev dependency.
+No linter yet:
 
 - `uv sync` — install deps into `.venv` from `pyproject.toml`.
 - `uv run src/bot.py` — start the bot. Blocks on `run_polling()`, Ctrl-C to stop.
+- `uv run pytest` — run the parser tests in `tests/`. Config is in `pyproject.toml`,
+  `pythonpath = ["src"]` is what makes `from parser import parse` resolve.
 - `uv add <pkg>` — add a runtime dependency.
 
 Update this section as real commands (linting, tests, the actual bot entrypoint) get added —
