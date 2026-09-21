@@ -62,7 +62,7 @@ async def unknown_handler(update, context):
 
 
 def _build_help_command() -> str:
-    return "\n".join(
+    return f"\n{'-' * 96}\n".join(
         ["Available commands:"]
         + [f"{cmd.name}:\t{cmd.description}" for cmd in commands]
     )
@@ -113,7 +113,20 @@ def _format_folder_listing_verbose(rows: list[sqlite3.Row]) -> str:
 
 
 def _format_folder_listing(rows: list[sqlite3.Row]) -> str:
-    return "\n".join(["Current folders"] + [row["folder"] for row in rows])
+    # Pad the folder name, the variable-width part, so the counts share a column.
+    name_width = max(len(row["folder"]) for row in rows)
+    count_width = max(len(str(row["task_count"])) for row in rows)
+
+    lines = [
+        f"{row['folder'].ljust(name_width)}  "
+        f"{str(row['task_count']).rjust(count_width)} "
+        f"{'task' if row['task_count'] == 1 else 'tasks'}"
+        for row in rows
+    ]
+
+    return "\n".join(
+        ["Current folders", "-" * max(len(line) for line in lines), *lines]
+    )
 
 
 async def list_handler(update, context):
@@ -230,7 +243,7 @@ commands: list[Command] = [
     Command(name="/done", description="Mark a task as done"),
     Command(name="/rm", description="Delete a task"),
     Command(name="/folders", description="List available folders"),
-    Command(name="/help", description="Displays this uu,
+    Command(name="/help", description="Displays this message"),
 ]
 
 if __name__ == "__main__":
