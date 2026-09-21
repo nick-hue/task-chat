@@ -16,8 +16,6 @@ def parse(text: str) -> Result:
 
     data = text.split()
 
-    folder = None
-
     if data and data[0].startswith("@") and len(data[0]) > 1:
         folder = data[0][1:]
         rest = data[1:]
