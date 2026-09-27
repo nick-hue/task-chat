@@ -12,10 +12,12 @@ mark tasks done, or delete them. Single user, single small database — no produ
 **Current state:** the application is built out phase by phase. **The authoritative source of
 where things stand is `docs/roadmap/progress/` — read the highest-numbered `PROGRESS_<N>.md` at the
 start of every session to learn the active phase**, rather than trusting any state described here
-(this line drifts). As of writing, Phases 1 through 5 are done: `src/bot.py` polls Telegram and
+(this line drifts). As of writing, Phases 1 through 7 are done: `src/bot.py` polls Telegram and
 turns each message into a task row, `src/parser.py` pulls out `@folder` and `#tag`, `src/db.py`
-writes to all three tables in `docs/SCHEMA.md`, and `tests/test_parser.py` covers the parsing
-rules. Phase 6 (command set) is active.
+writes to all three tables in `docs/SCHEMA.md`, `tests/test_parser.py` covers the parsing rules,
+`/list`, `/done`, `/rm`, `/folders` and `/help` are registered as `CommandHandler`s, and a
+`filters.User(ALLOWED_USER_ID)` guard on every handler closes the bot to everyone else. Phase 8
+(local run, real-world testing) is active, so the work is using the bot rather than extending it.
 
 ## How to work with me on this project
 
@@ -51,7 +53,7 @@ adding anything new.**
   not maintained further.
 - `docs/roadmap/phases/phase-<N>-*.md` — detailed task checklist for each phase, **added one at a
   time as the project reaches that phase** (later phases are not pre-written). Present so far:
-  `phase-1-bot-registration-api-basics_1.md`.
+  phases 1 through 8.
 - `docs/roadmap/progress/PROGRESS_<N>.md` — the live, per-phase status panels you maintain (see
   "Maintain the live progress panels" above).
 
