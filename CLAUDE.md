@@ -16,8 +16,9 @@ start of every session to learn the active phase**, rather than trusting any sta
 turns each message into a task row, `src/parser.py` pulls out `@folder` and `#tag`, `src/db.py`
 writes to all three tables in `docs/SCHEMA.md`, `tests/test_parser.py` covers the parsing rules,
 `/list`, `/done`, `/rm`, `/folders` and `/help` are registered as `CommandHandler`s, and a
-`filters.User(ALLOWED_USER_ID)` guard on every handler closes the bot to everyone else. Phase 8
-(local run, real-world testing) is active, so the work is using the bot rather than extending it.
+`filters.User(ALLOWED_USER_ID)` guard on every handler closes the bot to everyone else. Phase 9
+(deployment to the home server, systemd) is active, and Phase 8 (real daily use, friction list) is
+still open alongside it.
 
 ## How to work with me on this project
 
@@ -53,7 +54,7 @@ adding anything new.**
   not maintained further.
 - `docs/roadmap/phases/phase-<N>-*.md` — detailed task checklist for each phase, **added one at a
   time as the project reaches that phase** (later phases are not pre-written). Present so far:
-  phases 1 through 8.
+  phases 1 through 9.
 - `docs/roadmap/progress/PROGRESS_<N>.md` — the live, per-phase status panels you maintain (see
   "Maintain the live progress panels" above).
 
