@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 import sqlite3
 from dataclasses import dataclass
+import logging
 
 import db
 from parser import Result, parse
@@ -11,7 +12,22 @@ from parser import Result, parse
 load_dotenv()
 db.init_db()
 
-token = os.environ.get("BOT_TOKEN")
+TOKEN = os.environ.get("BOT_TOKEN")
+if TOKEN is None:
+    raise RuntimeError("BOT_TOKEN is missing from .env")
+
+
+raw_user_id = os.environ.get("ALLOWED_USER_ID")
+if raw_user_id is None:
+    raise RuntimeError("ALLOWED_USER_ID is missing from .env")
+
+try:
+    ALLOWED_USER_ID = int(raw_user_id)
+except ValueError:
+    raise RuntimeError(f"ALLOWED_USER_ID must be a number, got {raw_user_id!r}")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -59,6 +75,11 @@ async def unknown_handler(update, context):
         f"Command <{update.message.text}> does not exist.\n"
         "Try running the /help command to see available commands."
     )
+
+
+async def unauthorized_handler(update, context):
+    logger.warning("Unauthorized message from user id %s", update.effective_user.id)
+    await update.message.reply_text("User not authorized")
 
 
 def _build_help_command() -> str:
@@ -225,14 +246,17 @@ async def folders_handler(update, context):
     return
 
 
-app = Application.builder().token(token).build()
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handler))
-app.add_handler(CommandHandler("help", help_handler))
-app.add_handler(CommandHandler("list", list_handler))
-app.add_handler(CommandHandler("done", done_handler))
-app.add_handler(CommandHandler("rm", delete_handler))
-app.add_handler(CommandHandler("folders", folders_handler))
-app.add_handler(MessageHandler(filters.COMMAND, unknown_handler))
+ONLY_ME = filters.User(user_id=ALLOWED_USER_ID)
+
+app = Application.builder().token(TOKEN).build()
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ONLY_ME, handler))
+app.add_handler(CommandHandler("help", help_handler, filters=ONLY_ME))
+app.add_handler(CommandHandler("list", list_handler, filters=ONLY_ME))
+app.add_handler(CommandHandler("done", done_handler, filters=ONLY_ME))
+app.add_handler(CommandHandler("rm", delete_handler, filters=ONLY_ME))
+app.add_handler(CommandHandler("folders", folders_handler, filters=ONLY_ME))
+app.add_handler(MessageHandler(filters.COMMAND & ONLY_ME, unknown_handler))
+app.add_handler(MessageHandler(~ONLY_ME, unauthorized_handler))
 
 commands: list[Command] = [
     Command(name="<Plain text>", description="Just type the task you want to add"),
