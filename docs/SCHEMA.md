@@ -34,6 +34,7 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE tasks (
     id         INTEGER PRIMARY KEY,
     chat_id    INTEGER NOT NULL,
+    message_id INTEGER NOT NULL,
     content    TEXT    NOT NULL,
     done       INTEGER NOT NULL DEFAULT 0 CHECK (done IN (0, 1)),
     created_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,

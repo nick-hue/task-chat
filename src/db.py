@@ -18,6 +18,7 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS tasks (
     id         INTEGER PRIMARY KEY,
     chat_id    INTEGER NOT NULL,
+    message_id INTEGER NOT NULL,
     content    TEXT    NOT NULL,
     done       INTEGER NOT NULL DEFAULT 0 CHECK (done IN (0, 1)),
     created_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -34,6 +35,8 @@ CREATE TABLE IF NOT EXISTS task_tags (
     tag_id  INTEGER NOT NULL REFERENCES tags(tag_id),
     PRIMARY KEY (task_id, tag_id)
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_chat_message ON tasks (chat_id, message_id);
 """
 
 
@@ -45,29 +48,22 @@ def init_db() -> None:
 
 
 def insert_task(
-    chat_id: int, content: str, folder: str = "inbox", tags: list[str] | None = None
+    chat_id: int,
+    message_id: int,
+    content: str,
+    folder: str = "inbox",
+    tags: list[str] | None = None,
 ) -> int | None:
     if tags is None:
         tags = []
 
     conn = connect()
-    sql = "INSERT INTO tasks (chat_id, content, folder) VALUES (?, ?, ?)"
-    cur = conn.execute(sql, (chat_id, content, folder))
+    sql = "INSERT INTO tasks (chat_id, message_id, content, folder) VALUES (?, ?, ?, ?)"
+    cur = conn.execute(sql, (chat_id, message_id, content, folder))
     task_id = cur.lastrowid
 
     # for each tag the parser found add them to the row
-    for tag in tags:
-        # add tag to the tag table if it does not exist
-        conn.execute("INSERT OR IGNORE INTO tags (tag_name) VALUES (?)", (tag,))
-        # get the current tag row
-        tag_row = conn.execute(
-            "SELECT tag_id FROM tags WHERE tag_name = ?", (tag,)
-        ).fetchone()
-        # add it to the join table
-        conn.execute(
-            "INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)",
-            (task_id, tag_row["tag_id"]),
-        )
+    _set_tags(conn=conn, task_id=task_id, tags=tags)
 
     conn.commit()
     conn.close()
@@ -119,7 +115,6 @@ def mark_done(task_ids: list[int], chat_id: int) -> list[int]:
 
     placeholders = ", ".join("?" * len(task_ids))
     sql = f"UPDATE tasks SET done = 1 WHERE id IN ({placeholders}) AND chat_id = ? RETURNING id"
-
     rows = conn.execute(sql, [*task_ids, chat_id]).fetchall()
 
     conn.commit()
@@ -148,3 +143,38 @@ def list_folders(chat_id: int) -> list[sqlite3.Row]:
     conn.close()
 
     return rows
+
+
+def _set_tags(conn: sqlite3.Connection, task_id: int | None, tags: list[str]) -> None:
+
+    for tag in tags:
+        conn.execute("INSERT OR IGNORE INTO tags (tag_name) VALUES (?)", (tag,))
+        tag_row = conn.execute(
+            "SELECT tag_id FROM tags WHERE tag_name = ?", (tag,)
+        ).fetchone()
+        conn.execute(
+            "INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)",
+            (task_id, tag_row["tag_id"]),
+        )
+
+
+def edit_task(
+    chat_id: int, task_id: int, content: str, folder: str, tags: list[str]
+) -> int | None:
+
+    conn = connect()
+
+    sql = "UPDATE tasks SET content = ?, folder = ? WHERE chat_id = ? AND id = ? RETURNING id"
+    row = conn.execute(sql, (content, folder, chat_id, task_id)).fetchone()
+
+    if row is None:
+        conn.close()
+        return None
+
+    task_id = row["id"]
+    conn.execute("DELETE FROM task_tags WHERE task_id = ?", (task_id,))
+    _set_tags(conn, task_id, tags)
+
+    conn.commit()
+    conn.close()
+    return task_id

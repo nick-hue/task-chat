@@ -63,7 +63,11 @@ async def handler(update, context):
         return
 
     task_id = db.insert_task(
-        chat_id=chat_id, content=result.content, folder=result.folder, tags=result.tags
+        chat_id=chat_id,
+        message_id=msg.message_id,
+        content=result.content,
+        folder=result.folder,
+        tags=result.tags,
     )
 
     await msg.reply_text(_build_reply(result=result, task_id=task_id))
@@ -246,6 +250,43 @@ async def folders_handler(update, context):
     return
 
 
+async def edit_handler(update, context):
+    if len(context.args) < 2:
+        await update.message.reply_text(
+            "No id or text was given. Usage: /edit <id> <new text>"
+        )
+        return
+
+    try:
+        edit_task_id = int(context.args[0])
+    except ValueError:
+        await update.message.reply_text(f"Invalid id <{context.args[0]}> was given.")
+        return
+
+    text_str = " ".join(context.args[1:])
+    try:
+        parsed_edit_result = parse(text=text_str)
+    except ValueError:
+        await update.message.reply_text(f"Invalid text '{text_str}' was given.")
+        return
+
+    task_id = db.edit_task(
+        chat_id=update.effective_chat.id,
+        task_id=edit_task_id,
+        content=parsed_edit_result.content,
+        folder=parsed_edit_result.folder,
+        tags=parsed_edit_result.tags,
+    )
+
+    if task_id is None:
+        await update.message.reply_text(f"No task found with id [{edit_task_id}]")
+        return
+
+    await update.message.reply_text(
+        f"Successfully updated task:\n[{task_id}]: {parsed_edit_result.content}"
+    )
+
+
 ONLY_ME = filters.User(user_id=ALLOWED_USER_ID)
 MINE = ONLY_ME & filters.UpdateType.MESSAGE
 
@@ -256,6 +297,7 @@ app.add_handler(CommandHandler("list", list_handler, filters=MINE))
 app.add_handler(CommandHandler("done", done_handler, filters=MINE))
 app.add_handler(CommandHandler("rm", delete_handler, filters=MINE))
 app.add_handler(CommandHandler("folders", folders_handler, filters=MINE))
+app.add_handler(CommandHandler("edit", edit_handler, filters=MINE))
 app.add_handler(MessageHandler(filters.COMMAND & MINE, unknown_handler))
 app.add_handler(MessageHandler(filters.TEXT & ~ONLY_ME, unauthorized_handler))
 
@@ -265,9 +307,10 @@ commands: list[Command] = [
         name="/list",
         description="Lists not accomplished tasks. (-v for verbose), (@<folder> for folder filtering), (#<tag> for tag filtering)",
     ),
-    Command(name="/done", description="Mark a task as done"),
-    Command(name="/rm", description="Delete a task"),
+    Command(name="/done", description="Mark a task as done by id"),
+    Command(name="/rm", description="Delete a task by id"),
     Command(name="/folders", description="List available folders"),
+    Command(name="/edit", description="Edit an existing task by id (<id> <new text>)"),
     Command(name="/help", description="Displays this message"),
 ]
 
