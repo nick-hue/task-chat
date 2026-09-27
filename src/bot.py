@@ -247,16 +247,17 @@ async def folders_handler(update, context):
 
 
 ONLY_ME = filters.User(user_id=ALLOWED_USER_ID)
+MINE = ONLY_ME & filters.UpdateType.MESSAGE
 
 app = Application.builder().token(TOKEN).build()
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ONLY_ME, handler))
-app.add_handler(CommandHandler("help", help_handler, filters=ONLY_ME))
-app.add_handler(CommandHandler("list", list_handler, filters=ONLY_ME))
-app.add_handler(CommandHandler("done", done_handler, filters=ONLY_ME))
-app.add_handler(CommandHandler("rm", delete_handler, filters=ONLY_ME))
-app.add_handler(CommandHandler("folders", folders_handler, filters=ONLY_ME))
-app.add_handler(MessageHandler(filters.COMMAND & ONLY_ME, unknown_handler))
-app.add_handler(MessageHandler(~ONLY_ME, unauthorized_handler))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & MINE, handler))
+app.add_handler(CommandHandler("help", help_handler, filters=MINE))
+app.add_handler(CommandHandler("list", list_handler, filters=MINE))
+app.add_handler(CommandHandler("done", done_handler, filters=MINE))
+app.add_handler(CommandHandler("rm", delete_handler, filters=MINE))
+app.add_handler(CommandHandler("folders", folders_handler, filters=MINE))
+app.add_handler(MessageHandler(filters.COMMAND & MINE, unknown_handler))
+app.add_handler(MessageHandler(filters.TEXT & ~ONLY_ME, unauthorized_handler))
 
 commands: list[Command] = [
     Command(name="<Plain text>", description="Just type the task you want to add"),
