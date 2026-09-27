@@ -11,7 +11,7 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Clear leftover test rows | ⬜ To do |
+| 1 | Clear leftover test rows | ✅ Done |
 | 2 | Run daily, file real tasks | ⬜ To do |
 | 3 | Use every command in anger | ⬜ To do |
 | 4 | Keep `docs/FRICTION.md` | ⬜ To do |

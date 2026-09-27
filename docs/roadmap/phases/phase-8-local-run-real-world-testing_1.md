@@ -50,6 +50,14 @@ logger, so days of uptime means thousands of lines. When it stops being useful, 
 `WARNING` and raise your own logger to `INFO`. That is a friction item too, write it down rather
 than fixing it the moment it irritates you.
 
-**Known quirk to watch for.** A `MessageHandler` handles edited messages as well as new ones by
-default, so editing a task you already sent looks like it files a second copy. Confirm it, then put
-it on the list. `filters.UpdateType.MESSAGE` is the narrowing tool if you decide it is a blocker.
+**Known quirk to watch for.** Handlers see edited messages as well as new ones by default, and on
+an edited-message update `update.message` is `None` while `update.effective_message` holds the
+message. Every handler here reads `update.message`, so editing a task gets you silence in Telegram
+and an `AttributeError` in the log. No row is written and no reply is sent.
+Fixed during this phase by splitting the filter constants: `ONLY_ME` holds the identity check and
+is the only one ever negated, while `MINE = ONLY_ME & filters.UpdateType.MESSAGE` guards the six
+handlers. Edits from you now match nothing at all, so editing a task is silently ignored.
+
+Making an edit actually rewrite the task is a Phase 10 feature, not a fix. It needs a `message_id`
+column on `tasks` to find the row, which means an `ALTER TABLE`, since `init_db` uses
+`CREATE TABLE IF NOT EXISTS` and will not add a column to a table that already exists.
