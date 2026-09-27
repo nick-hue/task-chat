@@ -38,4 +38,21 @@ Carried over, and continues after deployment:
 
 ---
 
+## In flight: Phase 10 item — edit a message, update the task
+
+Pulled forward ahead of the friction list, by request.
+
+Built as `/edit <id> <new text>` rather than as a message edit. The `message_id` column is
+populated but unused, and is what a message-edit path would key on later.
+
+| # | Task | Status |
+|---|------|--------|
+| 1 | `message_id` column + unique index | ✅ Done |
+| 2 | `insert_task` stores it | ✅ Done |
+| 3 | `db.edit_task`, `_set_tags` helper | ✅ Done |
+| 4 | `/edit` handler | ✅ Done |
+| 5 | Try it from Telegram | ⬜ To do |
+
+---
+
 _Legend: ✅ Done · 🔧 Needs fix · ⬜ To do_
