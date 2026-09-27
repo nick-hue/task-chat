@@ -51,7 +51,7 @@ populated but unused, and is what a message-edit path would key on later.
 | 2 | `insert_task` stores it | ✅ Done |
 | 3 | `db.edit_task`, `_set_tags` helper | ✅ Done |
 | 4 | `/edit` handler | ✅ Done |
-| 5 | Try it from Telegram | ⬜ To do |
+| 5 | Try it from Telegram | ✅ Done |
 
 ---
 
