@@ -21,13 +21,19 @@ pick up parcel #errand #today  → inbox, tags: errand, today
 Then read it back:
 
 ```
-/list            all open tasks
-/list @work      just the work folder
-/list #urgent    just the urgent ones
-/done 3          mark task 3 complete
-/delete 3        remove task 3
-/folders         folders in use
+/list                  all open tasks
+/list -v               with id, folder and tags
+/list @work            just the work folder
+/list #urgent          just the urgent ones
+/done 3                mark task 3 complete
+/edit 3 @home mow #yard rewrite task 3, folder and tags included
+/rm 3                  delete task 3
+/folders               folders in use, with a count each
+/help                  the command list
 ```
+
+Only the Telegram user id in `ALLOWED_USER_ID` gets answers. Anyone else who finds the bot gets a
+refusal and their id lands in the log.
 
 ## Status
 
@@ -38,8 +44,10 @@ Then read it back:
 | 3 | Database schema design | Done |
 | 4 | Wire the database to the bot | Done |
 | 5 | Parsing logic | Done |
-| 6 | Command set | In progress |
-| 7 | Access control | |
-| 8 | Local run, real-world testing | |
-| 9 | Deployment | |
+| 6 | Command set | Done |
+| 7 | Access control | Done |
+| 8 | Local run, real-world testing | In progress |
+| 9 | Deployment | In progress |
 | 10 | Iterate | |
+
+`/edit` was pulled forward out of Phase 10 early, so editing a task works already.

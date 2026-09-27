@@ -11,13 +11,13 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Push, then clone on the server | ⬜ To do |
-| 2 | Install `uv`, `uv sync` | ⬜ To do |
-| 3 | Create `.env` on the server | ⬜ To do |
+| 1 | Push, then clone on the server | ✅ Done |
+| 2 | Install `uv`, `uv sync` | ✅ Done |
+| 3 | Create `.env` on the server | ✅ Done |
 | 4 | Copy `tasks.db` or start fresh | ⬜ To do |
-| 5 | Manual run, laptop bot stopped | ⬜ To do |
-| 6 | Write the systemd unit | ⬜ To do |
-| 7 | `enable --now`, read `journalctl` | ⬜ To do |
+| 5 | Manual run, laptop bot stopped | ✅ Done |
+| 6 | Write the systemd unit | ✅ Done |
+| 7 | `enable --now`, read `journalctl` | ✅ Done |
 | 8 | Kill it, then reboot | ⬜ To do |
 
 **Done when:** you reboot the server, do nothing, and the bot answers you.
